@@ -42,7 +42,7 @@ public class Main {
             // Obtener y mostrar el nuevo estado del préstamo
             estado = prestamoController.obtenerEstadoPrestamo(nuevoPrestamo.getIdPrestamo());
             System.out.println("Nuevo estado del préstamo: " + estado.getClass().getSimpleName());
-            /*
+
             // Devolver el préstamo
             prestamoController.devolverPrestamo(nuevoPrestamo.getIdPrestamo());
 
@@ -52,7 +52,7 @@ public class Main {
                 System.out.println("Estado final del préstamo: " + estado.getClass().getSimpleName());
             } else {
                 System.out.println("No se pudo obtener el estado final del préstamo.");
-            }*/
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {

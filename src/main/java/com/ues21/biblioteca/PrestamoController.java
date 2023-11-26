@@ -25,7 +25,7 @@ public class PrestamoController {
     }
 
     public void devolverPrestamo(int idPrestamo) {
-        prestamoContexto.devolverPrestamo(idPrestamo, this);
+        prestamoDAO.actualizarEstadoPrestamo(idPrestamo, new EstadoPrestamoDevuelto());
     }
 
     public EstadoPrestamo obtenerEstadoPrestamo(int idPrestamo) {
