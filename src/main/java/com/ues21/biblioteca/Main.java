@@ -8,55 +8,24 @@ public class Main {
         ConexionBaseDatos conexionBaseDatos = ConexionBaseDatos.obtenerInstancia();
         try {
             conexionBaseDatos.conectar();
-            // Crear la instancia de PrestamoDAOImpl pasando la conexión
-            PrestamoDAOImpl prestamoDAO = new PrestamoDAOImpl(conexionBaseDatos.getConexion());
 
-            // Crear una instancia de FabricaPrestamo (o cualquier otra implementación de FabricaObjetos)
+            PrestamoDAOImpl prestamoDAO = new PrestamoDAOImpl(conexionBaseDatos.getConexion());
             FabricaObjetos fabricaPrestamo = new FabricaPrestamo();
 
-            // Crear un controlador de préstamos con PrestamoDAO y FabricaObjetos
-            PrestamoController prestamoController = new PrestamoController(prestamoDAO, fabricaPrestamo);
+            // Crear una instancia de PrestamoVista (puedes usar la implementación SwingPrestamoVista)
+            SwingPrestamoVista swingPrestamoVista = new SwingPrestamoVista();
 
-            // Solicitar un préstamo
-            int idEstudiante = 1;  // Ajusta el ID del estudiante
-            int idLibro = 1;       // Ajusta el ID del libro
+            PrestamoController prestamoController = new PrestamoController(prestamoDAO, fabricaPrestamo, swingPrestamoVista);
 
-            PrestamoModelo nuevoPrestamo = new PrestamoModelo(
-                    0,                              // idPrestamo (se autogenerará en la base de datos)
-                    new EstadoPrestamoSolicitado(), // Estado inicial
-                    null,                           // fechaPrestamo (se asignará automáticamente en la base de datos)
-                    null,                           // fechaDevolucion (inicialmente nula)
-                    idEstudiante,                   // idEstudiante
-                    idLibro                         // idLibro
-            );
+            // Establecer el PrestamoController en SwingPrestamoVista
+            swingPrestamoVista.setPrestamoController(prestamoController);
 
-            prestamoController.solicitarPrestamo(nuevoPrestamo, idEstudiante, idLibro);
+            // Mostrar la ventana
+            swingPrestamoVista.mostrarVentana();
 
-            // Obtener el estado del préstamo
-            EstadoPrestamo estado = prestamoController.obtenerEstadoPrestamo(nuevoPrestamo.getIdPrestamo());
-            System.out.println("Estado actual del préstamo: " + estado.getClass().getSimpleName());
-
-            // Aprobar el préstamo
-            prestamoController.aprobarPrestamo(nuevoPrestamo.getIdPrestamo());
-
-            // Obtener y mostrar el nuevo estado del préstamo
-            estado = prestamoController.obtenerEstadoPrestamo(nuevoPrestamo.getIdPrestamo());
-            System.out.println("Nuevo estado del préstamo: " + estado.getClass().getSimpleName());
-
-            // Devolver el préstamo
-            prestamoController.devolverPrestamo(nuevoPrestamo.getIdPrestamo());
-
-            // Obtener y mostrar el estado final del préstamo
-            estado = prestamoController.obtenerEstadoPrestamo(nuevoPrestamo.getIdPrestamo());
-            if (estado != null) {
-                System.out.println("Estado final del préstamo: " + estado.getClass().getSimpleName());
-            } else {
-                System.out.println("No se pudo obtener el estado final del préstamo.");
-            }
+            // Resto del código...
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            conexionBaseDatos.desconectar();
         }
     }
 }

@@ -3,10 +3,12 @@ package com.ues21.biblioteca;
 public class PrestamoController {
     private PrestamoDAO prestamoDAO;
     private PrestamoContexto prestamoContexto;
+    private PrestamoVista prestamoVista;
 
-    public PrestamoController(PrestamoDAO prestamoDAO, FabricaObjetos fabricaObjetos) {
+    public PrestamoController(PrestamoDAO prestamoDAO, FabricaObjetos fabricaObjetos, PrestamoVista prestamoVista) {
         this.prestamoDAO = prestamoDAO;
         this.prestamoContexto = fabricaObjetos.crearInstancia();
+        this.prestamoVista = prestamoVista;
     }
 
     public void solicitarPrestamo(PrestamoModelo nuevoPrestamo, int idEstudiante, int idLibro) {

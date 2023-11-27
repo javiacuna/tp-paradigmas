@@ -1,7 +1,6 @@
 package com.ues21.biblioteca;
 
 import java.sql.*;
-import java.util.Calendar;
 
 public class PrestamoDAOImpl implements PrestamoDAO {
     private Connection conexion;
@@ -109,7 +108,5 @@ public class PrestamoDAOImpl implements PrestamoDAO {
             e.printStackTrace();
         }
     }
-
-    // Otros métodos relacionados con la gestión de préstamos
 }
 
