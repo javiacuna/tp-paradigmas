@@ -1,6 +1,7 @@
 package com.ues21.biblioteca;
 
 import java.sql.*;
+import java.util.Calendar;
 
 public class PrestamoDAOImpl implements PrestamoDAO {
     private Connection conexion;
@@ -94,11 +95,13 @@ public class PrestamoDAOImpl implements PrestamoDAO {
 
     @Override
     public void actualizarEstadoPrestamo(int idPrestamo, EstadoPrestamo nuevoEstado) {
-        String sql = "UPDATE Prestamo SET estado = ? WHERE idPrestamo = ?";
+        String sql = "UPDATE Prestamo SET estado = ?, fechaDevolucion = ? WHERE idPrestamo = ?";
 
         try (PreparedStatement pstmt = conexion.prepareStatement(sql)) {
             pstmt.setString(1, nuevoEstado.getClass().getSimpleName());
-            pstmt.setInt(2, idPrestamo);
+            Date date = new Date(System.currentTimeMillis());
+            pstmt.setDate(2, new java.sql.Date(date.getTime()));
+            pstmt.setInt(3, idPrestamo);
 
             pstmt.executeUpdate();
             System.out.println("Estado del préstamo actualizado correctamente.");
