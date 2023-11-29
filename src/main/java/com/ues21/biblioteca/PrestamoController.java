@@ -1,14 +1,21 @@
 package com.ues21.biblioteca;
 
+import java.util.List;
+
 public class PrestamoController {
     private PrestamoDAO prestamoDAO;
     private PrestamoContexto prestamoContexto;
     private PrestamoVista prestamoVista;
+    private EstudianteDAO estudianteDAO;
+    private LibroDAO libroDAO;
 
-    public PrestamoController(PrestamoDAO prestamoDAO, FabricaObjetos fabricaObjetos, PrestamoVista prestamoVista) {
+    public PrestamoController(PrestamoDAO prestamoDAO, FabricaObjetos fabricaObjetos, PrestamoVista prestamoVista,
+                              EstudianteDAO estudianteDAO, LibroDAO libroDAO) {
         this.prestamoDAO = prestamoDAO;
         this.prestamoContexto = fabricaObjetos.crearInstancia();
         this.prestamoVista = prestamoVista;
+        this.estudianteDAO = estudianteDAO;
+        this.libroDAO = libroDAO;
     }
 
     public void solicitarPrestamo(PrestamoModelo nuevoPrestamo, int idEstudiante, int idLibro) {
@@ -38,6 +45,14 @@ public class PrestamoController {
             System.out.println("No se pudo obtener el estado del préstamo. Verifica el ID del préstamo.");
             return null;
         }
+    }
+
+    public List<EstudianteModelo> obtenerTodosLosEstudiantes() {
+        return estudianteDAO.obtenerTodos(); // Delega la operación al EstudianteDAO
+    }
+
+    public List<LibroModelo> obtenerTodosLosLibros() {
+        return libroDAO.obtenerTodos(); // Delega la operación al LibroDAO
     }
 
     public void setEstado(EstadoPrestamo estado) {

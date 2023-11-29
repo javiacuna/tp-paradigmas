@@ -10,12 +10,14 @@ public class Main {
             conexionBaseDatos.conectar();
 
             PrestamoDAOImpl prestamoDAO = new PrestamoDAOImpl(conexionBaseDatos.getConexion());
+            EstudianteDAOImpl estudianteDAO = new EstudianteDAOImpl(conexionBaseDatos.getConexion());
+            LibroDAOImpl libroDAO = new LibroDAOImpl(conexionBaseDatos.getConexion());
             FabricaObjetos fabricaPrestamo = new FabricaPrestamo();
 
             // Crear una instancia de PrestamoVista (puedes usar la implementación SwingPrestamoVista)
             SwingPrestamoVista swingPrestamoVista = new SwingPrestamoVista();
 
-            PrestamoController prestamoController = new PrestamoController(prestamoDAO, fabricaPrestamo, swingPrestamoVista);
+            PrestamoController prestamoController = new PrestamoController(prestamoDAO, fabricaPrestamo, swingPrestamoVista, estudianteDAO, libroDAO);
 
             // Establecer el PrestamoController en SwingPrestamoVista
             swingPrestamoVista.setPrestamoController(prestamoController);
