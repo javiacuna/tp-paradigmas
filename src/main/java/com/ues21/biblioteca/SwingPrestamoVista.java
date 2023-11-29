@@ -2,12 +2,16 @@ package com.ues21.biblioteca;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
 
 public class SwingPrestamoVista implements PrestamoVista {
 
     private JFrame frame;
-    private JTextArea estadoTextArea;
+    private JTextArea estadoPrestamoTextArea;
+    private JTextArea estudiantesTextArea;
+    private JTextArea librosTextArea;
     private PrestamoController prestamoController;
     private PrestamoModelo prestamoModelo;
     private JTextField idEstudianteTextField;
@@ -19,112 +23,129 @@ public class SwingPrestamoVista implements PrestamoVista {
 
     private void initialize() {
         frame = new JFrame("Sistema de Biblioteca");
-        frame.setBounds(100, 100, 450, 300);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
 
-        // Utilizar GridLayout con 4 filas y 2 columnas
-        frame.setLayout(new GridLayout(5, 2));
+        JPanel formPanel = new JPanel(new GridLayout(2, 2, 5, 5));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Crear JTextField para el ID del estudiante
         idEstudianteTextField = new JTextField();
-        frame.add(new JLabel("ID Estudiante:"));  // Etiqueta explicativa
-        frame.add(idEstudianteTextField);
-
-        // Crear JTextField para el ID del libro
         idLibroTextField = new JTextField();
-        frame.add(new JLabel("ID Libro:"));  // Etiqueta explicativa
-        frame.add(idLibroTextField);
 
+        formPanel.add(new JLabel("ID Estudiante:"));
+        formPanel.add(idEstudianteTextField);
+        formPanel.add(new JLabel("ID Libro:"));
+        formPanel.add(idLibroTextField);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         JButton solicitarBtn = new JButton("Solicitar Préstamo");
-        solicitarBtn.addActionListener(e -> {
-            // Obtener los valores ingresados por el usuario
-            int idEstudiante = Integer.parseInt(idEstudianteTextField.getText());
-            int idLibro = Integer.parseInt(idLibroTextField.getText());
-
-            // Crear una nueva instancia de PrestamoModelo con los valores ingresados
-            PrestamoModelo nuevoPrestamo = new PrestamoModelo(
-                    0,
-                    new EstadoPrestamoSolicitado(),
-                    null,
-                    null,
-                    idEstudiante,
-                    idLibro
-            );
-
-            // Asignar el nuevoPrestamo a prestamoModelo antes de llamar a solicitarPrestamo
-            prestamoModelo = nuevoPrestamo;
-            // Llamar al método solicitarPrestamo del PrestamoController
-            prestamoController.solicitarPrestamo(nuevoPrestamo, idEstudiante, idLibro);
-            // Actualizar el estado en el JTextArea
-            actualizarEstado();
-        });
-        frame.add(solicitarBtn);
-
         JButton aprobarBtn = new JButton("Aprobar Préstamo");
-        aprobarBtn.addActionListener(e -> {
-            // Llamar al método aprobarPrestamo del PrestamoController
-            prestamoController.aprobarPrestamo(prestamoModelo.getIdPrestamo());
-            // Actualizar el estado en el JTextArea
-            actualizarEstado();
-        });
-        frame.add(aprobarBtn);
-
         JButton devolverBtn = new JButton("Devolver Préstamo");
-        devolverBtn.addActionListener(e -> {
-            // Llamar al método devolverPrestamo del PrestamoController
-            prestamoController.devolverPrestamo(prestamoModelo.getIdPrestamo());
-            // Actualizar el estado en el JTextArea
-            actualizarEstado();
-        });
-        frame.add(devolverBtn);
-
         JButton obtenerEstudiantesBtn = new JButton("Obtener Estudiantes");
-        obtenerEstudiantesBtn.addActionListener(e -> {
-            // Llamar al método obtenerTodosLosEstudiantes del PrestamoController
-            List<EstudianteModelo> estudiantes = prestamoController.obtenerTodosLosEstudiantes();
-            // Mostrar los estudiantes en el JTextArea
-            mostrarEstudiantes(estudiantes);
-        });
-        frame.add(obtenerEstudiantesBtn);
-
         JButton obtenerLibrosBtn = new JButton("Obtener Libros");
-        obtenerLibrosBtn.addActionListener(e -> {
-            // Llamar al método obtenerTodosLosLibros del PrestamoController
-            List<LibroModelo> libros = prestamoController.obtenerTodosLosLibros();
-            // Mostrar los estudiantes en el JTextArea
-            mostrarLibros(libros);
-        });
-        frame.add(obtenerLibrosBtn);
 
-        estadoTextArea = new JTextArea();
-        frame.add(estadoTextArea);
+        solicitarBtn.addActionListener(e -> solicitarPrestamo());
+        aprobarBtn.addActionListener(e -> aprobarPrestamo());
+        devolverBtn.addActionListener(e -> devolverPrestamo());
+        obtenerEstudiantesBtn.addActionListener(e -> obtenerEstudiantes());
+        obtenerLibrosBtn.addActionListener(e -> obtenerLibros());
 
-        frame.pack();  // Ajustar el tamaño del frame automáticamente
+        buttonPanel.add(solicitarBtn);
+        buttonPanel.add(aprobarBtn);
+        buttonPanel.add(devolverBtn);
+        buttonPanel.add(obtenerEstudiantesBtn);
+        buttonPanel.add(obtenerLibrosBtn);
+
+        JPanel textAreaPanel = new JPanel(new GridLayout(3, 1, 5, 5));
+        estadoPrestamoTextArea = createTextArea(4, 30);
+        estudiantesTextArea = createTextArea(4, 30);
+        librosTextArea = createTextArea(4, 30);
+        textAreaPanel.add(createLabelAndComponent("Estado del Préstamo:", estadoPrestamoTextArea));
+        textAreaPanel.add(createLabelAndComponent("Estudiantes:", estudiantesTextArea));
+        textAreaPanel.add(createLabelAndComponent("Libros:", librosTextArea));
+
+        frame.add(formPanel, BorderLayout.NORTH);
+        frame.add(buttonPanel, BorderLayout.CENTER);
+        frame.add(textAreaPanel, BorderLayout.SOUTH);
+
+        frame.setSize(800, 600);
+        frame.setLocationRelativeTo(null);
+    }
+
+    private JTextArea createTextArea(int rows, int columns) {
+        JTextArea textArea = new JTextArea(rows, columns);
+        textArea.setEditable(false);
+        textArea.setBorder(BorderFactory.createLineBorder(new Color(70, 130, 180)));  // Borde azul
+        textArea.setBackground(new Color(240, 248, 255));  // Fondo azul claro
+        return textArea;
+    }
+
+    private JPanel createLabelAndComponent(String labelText, JTextArea textArea) {
+        JPanel panel = new JPanel(new BorderLayout());
+        JLabel label = new JLabel(labelText);
+        panel.add(label, BorderLayout.NORTH);
+        panel.add(new JScrollPane(textArea), BorderLayout.CENTER);
+        panel.setBackground(new Color(240, 248, 255));  // Fondo azul claro
+        return panel;
+    }
+
+    private void solicitarPrestamo() {
+        int idEstudiante = Integer.parseInt(idEstudianteTextField.getText());
+        int idLibro = Integer.parseInt(idLibroTextField.getText());
+
+        PrestamoModelo nuevoPrestamo = new PrestamoModelo(
+                0,
+                new EstadoPrestamoSolicitado(),
+                null,
+                null,
+                idEstudiante,
+                idLibro
+        );
+
+        prestamoModelo = nuevoPrestamo;
+        prestamoController.solicitarPrestamo(nuevoPrestamo, idEstudiante, idLibro);
+        actualizarEstado();
+    }
+
+    private void aprobarPrestamo() {
+        prestamoController.aprobarPrestamo(prestamoModelo.getIdPrestamo());
+        actualizarEstado();
+    }
+
+    private void devolverPrestamo() {
+        prestamoController.devolverPrestamo(prestamoModelo.getIdPrestamo());
+        actualizarEstado();
+    }
+
+    private void obtenerEstudiantes() {
+        List<EstudianteModelo> estudiantes = prestamoController.obtenerTodosLosEstudiantes();
+        mostrarEstudiantes(estudiantes);
+    }
+
+    private void obtenerLibros() {
+        List<LibroModelo> libros = prestamoController.obtenerTodosLosLibros();
+        mostrarLibros(libros);
     }
 
     private void actualizarEstado() {
-        // Obtener el estado actualizado del préstamo
         EstadoPrestamo estado = prestamoController.obtenerEstadoPrestamo(prestamoModelo.getIdPrestamo());
-        // Actualizar el JTextArea con el nuevo estado
-        estadoTextArea.setText("Estado actual del préstamo: " + estado.getClass().getSimpleName());
+        estadoPrestamoTextArea.setText("Estado actual del préstamo: " + estado.getClass().getSimpleName());
     }
 
     private void mostrarEstudiantes(List<EstudianteModelo> estudiantes) {
-        // Mostrar los estudiantes en el JTextArea
-        StringBuilder estudiantesText = new StringBuilder("Estudiantes:\n");
+        StringBuilder estudiantesText = new StringBuilder();
         for (EstudianteModelo estudiante : estudiantes) {
-            estudiantesText.append(estudiante.toString()).append("\n");
+            estudiantesText.append(estudiante).append("\n");
         }
-        estadoTextArea.setText(estudiantesText.toString());
+        estudiantesTextArea.setText(estudiantesText.toString());
     }
 
     private void mostrarLibros(List<LibroModelo> libros) {
-        // Mostrar los estudiantes en el JTextArea
-        StringBuilder librosText = new StringBuilder("Libros:\n");
+        StringBuilder librosText = new StringBuilder();
         for (LibroModelo libro : libros) {
-            librosText.append(libro.toString()).append("\n");
+            librosText.append(libro).append("\n");
         }
-        estadoTextArea.setText(librosText.toString());
+        librosTextArea.setText(librosText.toString());
     }
 
     public void setPrestamoController(PrestamoController prestamoController) {
@@ -138,16 +159,10 @@ public class SwingPrestamoVista implements PrestamoVista {
 
     @Override
     public void actualizarEstadoPrestamo(EstadoPrestamo estado) {
-        estadoTextArea.setText("Estado actual del préstamo: " + estado.getClass().getSimpleName());
+        estadoPrestamoTextArea.setText("Estado actual del préstamo: " + estado.getClass().getSimpleName());
     }
 
     public void mostrarVentana() {
-        EventQueue.invokeLater(() -> {
-            try {
-                frame.setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+        EventQueue.invokeLater(() -> frame.setVisible(true));
     }
 }
